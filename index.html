@@ -1,0 +1,720 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAND_2515</title>
+    <link rel="icon" href="images/444.jpg" type="image/jpg">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: #111;
+            color: #ff0;
+            overflow: hidden;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><text x="0" y="28" font-family="Arial" font-size="30" fill="red">!</text></svg>'), auto;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: url('images/forest01.png') no-repeat center/cover;
+            z-index: 100;
+        }
+
+        .graffiti {
+            font-size: 48px;
+            color: #f00;
+            text-shadow: 0 0 10px #fff, 0 0 20px #f00;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            animation: flicker 2s infinite;
+            background: rgba(0,0,0,0.7);
+            padding: 20px;
+            border: 3px dashed #f00;
+        }
+
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 22%, 24%, 55% { opacity: 0.3; }
+        }
+
+        #start-btn {
+            padding: 15px 30px;
+            font-size: 24px;
+            background: #000;
+            border: 3px solid #f00;
+            color: #ff0;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        #start-btn:hover {
+            background: #f00;
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        .tag {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 12px;
+            color: #777;
+            background: rgba(0,0,0,0.5);
+            padding: 5px;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: url('images/1.jpg') no-repeat center/cover;
+            z-index: 90;
+        }
+
+        .loader-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #0f0;
+            text-shadow: 0 0 5px #000;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+        }
+
+        .loader-bar {
+            width: 70%;
+            height: 20px;
+            background: #333;
+            border: 2px solid #f00;
+            overflow: hidden;
+            box-shadow: 0 0 10px #f00;
+        }
+
+        .loader-bar::before {
+            content: "";
+            display: block;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #f00, #0f0, #00f);
+            animation: loading 5s linear infinite;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; background-position: 0% 50%; }
+            50% { width: 100%; background-position: 100% 50%; }
+            100% { width: 0%; background-position: 0% 50%; }
+        }
+
+        .hint {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #777;
+            font-style: italic;
+            background: rgba(0,0,0,0.5);
+            padding: 5px;
+        }
+
+        #game {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            transition: all 0.5s;
+        }
+
+        #game-content {
+            position: relative;
+            width: 80%;
+            height: 70%;
+            border: 5px solid #f00;
+            box-shadow: 0 0 20px #f00;
+            animation: glitch 2s infinite;
+            background-size: cover;
+            background-position: center;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); filter: hue-rotate(0deg); }
+            20% { transform: translate(-5px, 5px); filter: hue-rotate(90deg); }
+            40% { transform: translate(5px, -5px); filter: hue-rotate(180deg); }
+            60% { transform: translate(-5px, -5px); filter: hue-rotate(270deg); }
+            80% { transform: translate(5px, 5px); filter: hue-rotate(360deg); }
+            100% { transform: translate(0); filter: hue-rotate(0deg); }
+        }
+
+        #counter, #timer, #stage {
+            position: absolute;
+            font-size: 20px;
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+            background: rgba(0,0,0,0.5);
+            padding: 5px;
+        }
+
+        #counter {
+            top: 20px;
+            left: 20px;
+        }
+
+        #timer {
+            top: 20px;
+            right: 20px;
+        }
+
+        #stage {
+            bottom: 20px;
+            left: 20px;
+        }
+
+        #error-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0000aa;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            z-index: 1000;
+        }
+
+        .bsod {
+            max-width: 80%;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .bsod h1 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .bsod p {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .dialog {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 80%;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #f00;
+            padding: 10px;
+            color: #fff;
+            font-size: 16px;
+            animation: dialogPulse 3s infinite;
+            text-align: center;
+        }
+
+        @keyframes dialogPulse {
+            0% { border-color: #f00; }
+            50% { border-color: #0f0; }
+            100% { border-color: #f00; }
+        }
+
+        .action-buttons {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .action-btn {
+            padding: 12px 24px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #f00;
+            color: #ff0;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 16px;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            background: #f00;
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        .social-buttons {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #f00;
+            color: #ff0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 20px;
+            text-decoration: none;
+        }
+
+        .social-btn:hover {
+            background: #f00;
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        .social-icon {
+            width: 24px;
+            height: 24px;
+            filter: invert(1);
+        }
+    </style>
+</head>
+<body>
+    <!-- 1. Start Screen -->
+    <div id="start-screen">
+        <div class="graffiti">ENTER IF YOU DARE</div>
+        <button id="start-btn">CLICK IF YOU'RE NOT A LOSER</button>
+        <div class="tag">© GANG FROM 2515</div>
+        
+        <!-- Social buttons on start screen -->
+        <div class="social-buttons">
+            <a href="https://t.me/grand_2515_rus" class="social-btn" target="_blank">
+                <img src="images/t_logo.png" class="social-icon" alt="Telegram">
+            </a>
+            <a href="https://x.com/grand_2515_rus" class="social-btn" target="_blank">
+                <img src="images/twitter.ico" class="social-icon" alt="Twitter">
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. Loader -->
+    <div id="loader" class="hidden">
+        <div class="loader-text">LOADING BACKYARD... <span id="progress">0%</span></div>
+        <div class="loader-bar"></div>
+        <div class="hint">DON'T TURN OFF YOUR PC OR VIRUS WILL FLY IN</div>
+    </div>
+
+    <!-- 3. Game -->
+    <div id="game" class="hidden">
+        <div id="game-content"></div>
+        <div id="counter">DOSE: <span>0</span>/10</div>
+        <div id="timer">TIME: <span>00:00</span></div>
+        <div id="stage">STAGE: <span>PREMONITION</span></div>
+        <div id="dialog" class="dialog hidden">DIALOG TEXT</div>
+        
+        <!-- Centered action buttons -->
+        <div class="action-buttons">
+            <button class="action-btn" data-action="take">TAKE IT</button>
+            <button class="action-btn" data-action="run">RUN AWAY</button>
+            <button class="action-btn" data-action="fight">FIGHT BACK</button>
+        </div>
+        
+        <!-- Social buttons in game -->
+        <div class="social-buttons">
+            <a href="https://t.me/grand_2515_rus" class="social-btn" target="_blank">
+                <img src="images/t_logo.png" class="social-icon" alt="Telegram">
+            </a>
+            <a href="https://x.com/grand_2515_rus" class="social-btn" target="_blank">
+                <img src="images/twitter.ico" class="social-icon" alt="Twitter">
+            </a>
+        </div>
+        
+        <audio id="sound"></audio>
+        <audio id="bg-music" loop=""></audio>
+    </div>
+
+    <!-- 4. Final (BSOD) -->
+    <div id="error-screen" class="hidden">
+        <div class="bsod">
+            <h1>BACKYARD 2515 — GAME OVER</h1>
+            <p>> YOU GOT BEATEN UP</p>
+            <p>> THE GANG TOOK YOUR GPU</p>
+            <p>> REBOOT IN <span id="restart-timer">10</span>...</p>
+        </div>
+    </div>
+
+    <script>
+        // [Previous JavaScript code remains exactly the same]
+        document.addEventListener('DOMContentLoaded', function() {
+            // UI Elements
+            const startBtn = document.getElementById('start-btn');
+            const startScreen = document.getElementById('start-screen');
+            const loader = document.getElementById('loader');
+            const game = document.getElementById('game');
+            const gameContent = document.getElementById('game-content');
+            const errorScreen = document.getElementById('error-screen');
+            const progressText = document.getElementById('progress');
+            const counter = document.getElementById('counter').querySelector('span');
+            const timer = document.getElementById('timer').querySelector('span');
+            const stageText = document.getElementById('stage').querySelector('span');
+            const dialog = document.getElementById('dialog');
+            const sound = document.getElementById('sound');
+            const bgMusic = document.getElementById('bg-music');
+            const restartTimer = document.getElementById('restart-timer');
+            const actionButtons = document.querySelectorAll('.action-btn');
+
+            // Game Stages
+            const stages = [
+                {
+                    name: "PREMONITION",
+                    dialog: "Dude, are you sure you want to try this?",
+                    bg: "#000",
+                    actions: ["Look around", "Approach", "Leave"]
+                },
+                {
+                    name: "FIRST DOSE",
+                    dialog: "Okay, just a little bit? Don't freak out...",
+                    bg: "#110000",
+                    actions: ["Take it", "Refuse", "Ask questions"]
+                },
+                {
+                    name: "COMING UP",
+                    dialog: "Whoa... dude, do you see that? The walls are breathing...",
+                    bg: "#220000",
+                    actions: ["Touch walls", "Close eyes", "Scream"]
+                },
+                {
+                    name: "TRIP",
+                    dialog: "HOLY SHIT! WHAT THE FUCK IS THAT?! WHO ARE YOU PEOPLE?!",
+                    bg: "#440000",
+                    actions: ["Attack", "Hide", "Surrender"]
+                },
+                {
+                    name: "BAD TRIP",
+                    dialog: "THEY'RE EVERYWHERE! THEY'RE AFTER ME! HELP!",
+                    bg: "#880000",
+                    actions: ["Run", "Fight", "Pray"]
+                },
+                {
+                    name: "COMEDOWN",
+                    dialog: "What... what was that? Where am I? Who am I?",
+                    bg: "#440000",
+                    actions: ["Cry", "Laugh", "Sleep"]
+                },
+                {
+                    name: "AFTERMATH",
+                    dialog: "Fuck... I feel so sick... I'll never do this again...",
+                    bg: "#220000",
+                    actions: ["Vomit", "Drink water", "Call help"]
+                },
+                {
+                    name: "ENLIGHTENMENT",
+                    dialog: "I get it... I understand everything now... the universe is speaking to me...",
+                    bg: "#000044",
+                    actions: ["Meditate", "Write", "Dance"]
+                },
+                {
+                    name: "GAME OVER",
+                    dialog: "That's it... they got me... goodbye, cruel world...",
+                    bg: "#000000",
+                    actions: ["Accept", "Resist", "Beg"]
+                }
+            ];
+
+            // Stage Background Images
+            const stageImages = {
+                "PREMONITION": [
+                    "2.jpeg", // Alley
+                    "3.jpg", // Stairwell
+                    "4.jpg"  // Door
+                ],
+                "FIRST DOSE": [
+                    "5.jpeg", // Bottle
+                    "6.jpeg", // Syringe
+                    "7.avif"  // Pills
+                ],
+                "COMING UP": [
+                    "8.jpg", // Distorted face
+                    "9.webp", // Eyes
+                    "11.jpg"  // Hands
+                ],
+                "TRIP": [
+                    "12.avif", // Monsters
+                    "13.jpeg", // Tunnel
+                    "14.jpeg"  // Nightmare
+                ],
+                "BAD TRIP": [
+                    "15.jpeg", // Screaming face
+                    "16.jpeg", // Panic
+                    "17.jpeg"  // Horror
+                ],
+                "COMEDOWN": [
+                    "18.jpeg", // Broken
+                    "19.jpeg", // Void
+                    "20.jpeg"  // Loneliness
+                ],
+                "AFTERMATH": [
+                    "21.webp", // Hospital
+                    "22.jpeg", // IV drip
+                    "23.jpg"  // Jail
+                ],
+                "ENLIGHTENMENT": [
+                    "24.webp", // Space
+                    "25.jpeg", // Buddha
+                    "23.jpeg"  // Mandala
+                ],
+                "GAME OVER": [
+                    "https://i.imgur.com/7vTqY3d.jpg", // Coffin
+                    "https://i.imgur.com/9sQpW4f.jpg", // Black screen
+                    "https://i.imgur.com/2vRpX5e.jpg"  // The End
+                ]
+            };
+
+            // Sound Effects
+            const sounds = {
+                "PREMONITION": [
+                    "https://www.soundjay.com/buttons/sounds/button-10.mp3",
+                    "https://www.soundjay.com/buttons/sounds/button-09.mp3"
+                ],
+                "FIRST DOSE": [
+                    "https://www.soundjay.com/buttons/sounds/button-21.mp3",
+                    "https://www.soundjay.com/buttons/sounds/button-30.mp3"
+                ],
+                "COMING UP": [
+                    "https://www.soundjay.com/buttons/sounds/button-16.mp3",
+                    "https://www.soundjay.com/buttons/sounds/button-17.mp3"
+                ],
+                "TRIP": [
+                    "https://www.soundjay.com/buttons/sounds/button-27.mp3",
+                    "https://www.soundjay.com/buttons/sounds/button-28.mp3"
+                ],
+                "BAD TRIP": [
+                    "https://www.soundjay.com/buttons/sounds/button-40.mp3",
+                    "https://www.soundjay.com/buttons/sounds/button-42.mp3"
+                ],
+                "COMEDOWN": [
+                    "https://www.soundjay.com/buttons/sounds/button-33.mp3",
+                    "https://www.soundjay.com/buttons/sounds/button-34.mp3"
+                ],
+                "AFTERMATH": [
+                    "https://www.soundjay.com/buttons/sounds/button-36.mp3",
+                    "https://www.soundjay.com/buttons/sounds/button-37.mp3"
+                ],
+                "ENLIGHTENMENT": [
+                    "https://www.soundjay.com/buttons/sounds/button-23.mp3",
+                    "https://www.soundjay.com/buttons/sounds/button-24.mp3"
+                ],
+                "GAME OVER": [
+                    "https://www.soundjay.com/buttons/sounds/button-50.mp3",
+                    "https://www.soundjay.com/buttons/sounds/button-51.mp3"
+                ]
+            };
+
+            // Background Music
+            const bgMusicTracks = [
+                "https://www.soundjay.com/mechanical/sounds/elevator-music-01.mp3",
+                "https://www.soundjay.com/mechanical/sounds/elevator-music-02.mp3"
+            ];
+
+            let clicks = 0;
+            let seconds = 0;
+            let timeInterval;
+            let gameInterval;
+            let currentStage = 0;
+            const maxClicks = 10;
+            const clicksPerStage = Math.floor(maxClicks / stages.length);
+
+            // Initialize
+            function init() {
+                startScreen.classList.remove('hidden');
+                loader.classList.add('hidden');
+                game.classList.add('hidden');
+                errorScreen.classList.add('hidden');
+                dialog.classList.add('hidden');
+            }
+
+            // Start Game
+            startBtn.addEventListener('click', function() {
+                startScreen.classList.add('hidden');
+                loader.classList.remove('hidden');
+                simulateLoading();
+            });
+
+            // Loading Screen
+            function simulateLoading() {
+                let progress = 0;
+                const loadInterval = setInterval(function() {
+                    progress += Math.random() * 15;
+                    if (progress > 100) progress = 100;
+                    progressText.textContent = Math.floor(progress) + '%';
+
+                    if (progress >= 100) {
+                        clearInterval(loadInterval);
+                        loader.classList.add('hidden');
+                        startGame();
+                    }
+                }, 300);
+            }
+
+            // Game Start
+            function startGame() {
+                game.classList.remove('hidden');
+                clicks = 0;
+                seconds = 0;
+                currentStage = 0;
+                counter.textContent = '0';
+                timer.textContent = '00:00';
+                updateStage();
+
+                // Timer
+                timeInterval = setInterval(function() {
+                    seconds++;
+                    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                    const secs = (seconds % 60).toString().padStart(2, '0');
+                    timer.textContent = mins + ':' + secs;
+                }, 1000);
+
+                // Background Music
+                bgMusic.src = bgMusicTracks[Math.floor(Math.random() * bgMusicTracks.length)];
+                bgMusic.volume = 0.3;
+                bgMusic.play().catch(e => console.log("Music error:", e));
+
+                // Action Buttons
+                actionButtons.forEach(btn => {
+                    btn.addEventListener('click', handleAction);
+                });
+            }
+
+            // Update Stage
+            function updateStage() {
+                const stage = stages[currentStage];
+                stageText.textContent = stage.name;
+                game.style.background = stage.bg;
+                
+                // Update action buttons
+                actionButtons.forEach((btn, index) => {
+                    btn.textContent = stage.actions[index] || "???";
+                });
+
+                // Show dialog
+                dialog.textContent = stage.dialog;
+                dialog.classList.remove('hidden');
+                setTimeout(() => {
+                    dialog.classList.add('hidden');
+                }, 3000);
+
+                // Change background image
+                changeBackground();
+            }
+
+            // Handle Player Action
+            function handleAction(e) {
+                clicks++;
+                counter.textContent = clicks;
+                
+                // Play random sound
+                const stageSounds = sounds[stages[currentStage].name];
+                if (stageSounds && Math.random() > 0.5) {
+                    sound.src = stageSounds[Math.floor(Math.random() * stageSounds.length)];
+                    sound.volume = 0.7;
+                    sound.play().catch(e => console.log("Sound error:", e));
+                }
+
+                // Check stage progression
+                const newStage = Math.floor(clicks / clicksPerStage);
+                if (newStage > currentStage && newStage < stages.length) {
+                    currentStage = newStage;
+                    updateStage();
+                }
+                
+                if (clicks >= maxClicks) {
+                    endGame();
+                } else {
+                    changeBackground();
+                }
+            }
+
+            // Change Background Image
+            function changeBackground() {
+                const stageName = stages[currentStage].name;
+                const stageImagesList = stageImages[stageName] || stageImages["PREMONITION"];
+                const randomImg = stageImagesList[Math.floor(Math.random() * stageImagesList.length)];
+                
+                gameContent.style.backgroundImage = `url('${randomImg}')`;
+                gameContent.style.backgroundSize = 'cover';
+                gameContent.style.backgroundPosition = 'center';
+            }
+
+            // End Game
+            function endGame() {
+                clearInterval(timeInterval);
+                clearInterval(gameInterval);
+                game.classList.add('hidden');
+                errorScreen.classList.remove('hidden');
+                bgMusic.pause();
+
+                actionButtons.forEach(btn => {
+                    btn.removeEventListener('click', handleAction);
+                });
+
+                let restartTime = 10;
+                const restartInterval = setInterval(function() {
+                    restartTime--;
+                    restartTimer.textContent = restartTime;
+                    
+                    if (restartTime <= 0) {
+                        clearInterval(restartInterval);
+                        resetGame();
+                    }
+                }, 1000);
+            }
+
+            // Reset Game
+            function resetGame() {
+                errorScreen.classList.add('hidden');
+                startScreen.classList.remove('hidden');
+            }
+
+            // Initialize on load
+            init();
+        });
+    </script>
+
+</body></html>
